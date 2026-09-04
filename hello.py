@@ -52,15 +52,15 @@ print("Day 3:", followers)
 # The += operator adds a value to the existing variable, while the -= operator subtracts a value from the existing variable.
 
 # Activity 4
-username = input("Enter Username: ")
-age = input("Enter Age: ")
-category = input("Enter Content Category: ")
+# username = input("Enter Username: ")
+# age = input("Enter Age: ")
+# category = input("Enter Content Category: ")
 
-print("\nInstagram Profile")
-print("====================")
-print("Username:", username)
-print("Age:", age)
-print("Category:", category)
+# print("\nInstagram Profile")
+# print("====================")
+# print("Username:", username)
+# print("Age:", age)
+# print("Category:", category)
 
 # a. How does input() capture what the user types?
 # The input() function waits for the user to type something and press Enter, then it captures that input as a string.
@@ -72,3 +72,23 @@ print("Category:", category)
 # Yes, running the program multiple times with different inputs will yield different outputs based on what the user enters.
 
 # Activity 5
+
+username = input("Enter Username: ")
+age = int(input("Enter Age: "))
+category = input("Enter Content Category: ")
+
+print("\nInstagram Profile")
+print("====================")
+print("Username:", username)
+print("Age:", age)
+print("Category:", category)
+
+if age>40 and category == "fun":
+    print("You are old what is fun for you??")
+
+# a. What is the return type of input()?
+# The return type of input() is a string.
+
+# b. How are the different conditions being checked?
+# The conditions are checks using 'if', where if the age is greater than 40 and the category is "fun", 
+# it will print a specific message.
