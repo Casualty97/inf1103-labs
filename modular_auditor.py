@@ -1,67 +1,76 @@
-# INF1103 Lab 2 - Smart Inventory Auditor
-# Flow control: conditional statements (if / elif / else) and a while loop.
+# INF1103 Lab 3 - Smart Inventory Auditor (Modular Design)
+# Same behaviour as Lab 2, but the logic now lives in functions.
+#
+# Function signatures mapped out before writing any code:
+#   get_valid_input()                          -> int | "quit" | None
+#   process_delivery(current_total, new_value) -> int   (the new running total)
+#   calculate_tax(amount)                      -> float (10% of that delivery)
+#   generate_report(total_units, failed_attempts) -> None (prints the summary)
 
-# 1. Initialize the inventory to zero in the start
-inventory = 0
-failed_entries = 0
+OVERSTOCK_LIMIT = 500
 
-print("===================================")
-print("Smart Inventory Auditor")
-print("Enter a stock quantity, or type 'quit' to finish.")
-print("===================================")
 
-# 2. Run in a continuous loop until the user types quit.
-#    A while loop is the right choice here: we do not know in advance how many
-#    deliveries the operator will key in, so there is nothing to count through
-#    with a for loop. We just keep going until a condition tells us to stop.
-while True:
+def get_valid_input():
+    """Prompt the operator once and validate what came back.
+
+    In:  nothing.
+    Out: the quantity as an int when the entry is usable,
+         the string "quit" when the operator wants to stop,
+         or None when the entry was rejected (the caller counts the failure).
+    """
     entry = input("Enter stock quantity: ")
 
     if entry.lower() == "quit":
-        break
-
-    # 3. Accept stock values as integers.
-    #    .isdigit() is only True for a run of digits, so it rejects "ten" for us.
+        return "quit"
     elif entry.isdigit():
-        quantity = int(entry)
-
-        # 6. Manage state: keep a running total of the inventory.
-        inventory = inventory + quantity
-        print("Accepted:", quantity, "units. Inventory is now", inventory, "units.")
-
-        # 7. Trigger the overstock alert and stop auditing immediately.
-        if inventory > 500:
-            print("!! OVERSTOCK ALERT: inventory has exceeded 500 units. Stopping the audit.")
-            break
-
-    # 5. Enforce business rules: reject negative numbers.
-    #    "-5".isdigit() is False, so a negative value would otherwise be reported
-    #    as "not a number". Checking for a leading minus sign keeps the two
-    #    business rules separate and gives the operator a useful message.
+        return int(entry)
     elif entry.startswith("-") and entry[1:].isdigit():
         print("Rejected: negative quantities are not allowed.")
-        failed_entries = failed_entries + 1
-
-    # 4. Handle invalid input: anything else is dirty data. Print an error and
-    #    carry on with the next iteration instead of crashing.
+        return None
     else:
         print("Rejected: '" + entry + "' is not a whole number.")
-        failed_entries = failed_entries + 1
+        return None
 
-# 8. Reporting
-print("===================================")
-print("AUDIT REPORT")
-print("Total Units Processed:", inventory)
-print("Number of Failed/Rejected Entries:", failed_entries)
-print("===================================")
 
-# 7. Self-Reflection Task
-# "If I want to save the final inventory count to a file so it doesn't vanish
-#  when the container stops, what fundamental limitation of Docker are we hitting?"
-#
-# A container's filesystem is ephemeral. Anything the program writes goes into the
-# container's own writable layer, and that layer is thrown away when the container
-# is removed - which --rm does the moment the script exits. The image itself is
-# read-only, so the data cannot be written back into it either.
-# To make the data outlive the container it has to be written somewhere outside
-# the container - a bind mount or a named volume - which is what we do in Lab 4.
+def main():
+    # 1. Initialize the inventory to zero in the start
+    inventory = 0
+    failed_entries = 0
+    deliveries = 0
+
+    print("===================================")
+    print("Smart Inventory Auditor (Modular)")
+    print("Enter a stock quantity, or type 'quit' to finish.")
+    print("===================================")
+
+    # 2. Run in a continuous loop until the user types quit
+    while True:
+        result = get_valid_input()
+
+        if result == "quit":
+            break
+        elif result is None:
+            failed_entries = failed_entries + 1
+        else:
+            # 3. A valid value: update the total and the counters
+            inventory = inventory + result
+            deliveries = deliveries + 1
+
+            print("Accepted:", result, "units. Inventory is now", inventory, "units.")
+
+            if inventory > OVERSTOCK_LIMIT:
+                print("!! OVERSTOCK ALERT: inventory has exceeded",
+                      OVERSTOCK_LIMIT, "units. Stopping the audit.")
+                break
+
+    # 4. Reporting
+    print("===================================")
+    print("AUDIT REPORT")
+    print("Total Deliveries Processed:", deliveries)
+    print("Total Units Processed:", inventory)
+    print("Number of Failed/Rejected Entries:", failed_entries)
+    print("===================================")
+
+
+if __name__ == "__main__":
+    main()
