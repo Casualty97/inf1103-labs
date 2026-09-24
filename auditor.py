@@ -3,6 +3,7 @@
 
 # 1. Initialize the inventory to zero in the start
 inventory = 0
+failed_entries = 0
 
 print("===================================")
 print("Smart Inventory Auditor")
@@ -19,4 +20,14 @@ while True:
     if entry.lower() == "quit":
         break
 
-    print("You entered:", entry)
+    # 3. Accept stock values as integers.
+    #    .isdigit() is only True for a run of digits, so it rejects "ten" for us.
+    elif entry.isdigit():
+        quantity = int(entry)
+        print("Accepted:", quantity, "units.")
+
+    # 4. Handle invalid input: anything else is dirty data. Print an error and
+    #    carry on with the next iteration instead of crashing.
+    else:
+        print("Rejected: '" + entry + "' is not a whole number.")
+        failed_entries = failed_entries + 1
