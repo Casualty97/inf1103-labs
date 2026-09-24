@@ -1,6 +1,6 @@
 # INF1103 Lab 4 - Smart Inventory Auditor (Data Persistence)
-# Lab 3's modular design, plus file handling so the inventory survives after
-# the program - or the container - stops.
+# Lab 3's modular design, plus file handling and a list so the inventory and the
+# transaction history survive after the program - or the container - stops.
 
 TAX_RATE = 0.10
 OVERSTOCK_LIMIT = 500
@@ -8,17 +8,18 @@ INVENTORY_FILE = "inventory.txt"
 
 
 def load_inventory():
-    """Read the saved total back into memory at startup.
+    """Read the saved state back into memory at startup.
 
     In:  nothing.
-    Out: the saved running total, or 0 when there is no file yet - which is the
-         normal case on a first run, so it must not be an error.
+    Out: (total, history) - the saved running total and the list of every
+         transaction recorded so far. Returns (0, []) when there is no file yet,
+         which is the normal case on a first run, so it must not be an error.
     """
     try:
         file = open(INVENTORY_FILE, "r")
     except FileNotFoundError:
         print("No", INVENTORY_FILE, "found - starting with an empty inventory.")
-        return 0
+        return 0, []
 
     lines = file.read().splitlines()
     file.close()
@@ -27,8 +28,14 @@ def load_inventory():
     if len(lines) > 0 and lines[0].strip() != "":
         total = int(lines[0].strip())
 
-    print("Loaded", INVENTORY_FILE + ":", total, "units.")
-    return total
+    history = []
+    if len(lines) > 1 and lines[1].strip() != "":
+        for amount in lines[1].split(","):
+            history.append(int(amount))
+
+    print("Loaded", INVENTORY_FILE + ":", total, "units from",
+          len(history), "past transactions.")
+    return total, history
 
 
 def get_valid_input():
@@ -70,7 +77,7 @@ def generate_report(total_units, failed_attempts, deliveries=0):
 
 def main():
     # 1. Persistence: pick up where the last run left off
-    inventory = load_inventory()
+    inventory, history = load_inventory()
 
     failed_entries = 0
     deliveries = 0
@@ -92,6 +99,9 @@ def main():
             inventory = process_delivery(inventory, result)
             tax = calculate_tax(result)
             deliveries = deliveries + 1
+
+            # 2. History tracking: every valid transaction goes into the list
+            history.append(result)
 
             print("Accepted:", result, "units | tax on this delivery:",
                   round(tax, 2), "| inventory now", inventory)
