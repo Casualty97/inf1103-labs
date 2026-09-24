@@ -26,6 +26,14 @@ while True:
         quantity = int(entry)
         print("Accepted:", quantity, "units.")
 
+    # 5. Enforce business rules: reject negative numbers.
+    #    "-5".isdigit() is False, so a negative value would otherwise be reported
+    #    as "not a number". Checking for a leading minus sign keeps the two
+    #    business rules separate and gives the operator a useful message.
+    elif entry.startswith("-") and entry[1:].isdigit():
+        print("Rejected: negative quantities are not allowed.")
+        failed_entries = failed_entries + 1
+
     # 4. Handle invalid input: anything else is dirty data. Print an error and
     #    carry on with the next iteration instead of crashing.
     else:
