@@ -7,6 +7,7 @@
 #   calculate_tax(amount)                      -> float (10% of that delivery)
 #   generate_report(total_units, failed_attempts) -> None (prints the summary)
 
+TAX_RATE = 0.10
 OVERSTOCK_LIMIT = 500
 
 
@@ -37,6 +38,14 @@ def process_delivery(current_total, new_value):
     return current_total + new_value
 
 
+def calculate_tax(amount):
+    """In: one delivery amount. Out: the tax due on that delivery (10%).
+
+    Note this only returns the number - it deliberately does not print it.
+    """
+    return amount * TAX_RATE
+
+
 def main():
     # 1. Initialize the inventory to zero in the start
     inventory = 0
@@ -57,11 +66,13 @@ def main():
         elif result is None:
             failed_entries = failed_entries + 1
         else:
-            # 3. A valid value: update the total and the counters
+            # 3. A valid value: update the total, the tax and the counters
             inventory = process_delivery(inventory, result)
+            tax = calculate_tax(result)
             deliveries = deliveries + 1
 
-            print("Accepted:", result, "units. Inventory is now", inventory, "units.")
+            print("Accepted:", result, "units | tax on this delivery:",
+                  round(tax, 2), "| inventory now", inventory)
 
             if inventory > OVERSTOCK_LIMIT:
                 print("!! OVERSTOCK ALERT: inventory has exceeded",
