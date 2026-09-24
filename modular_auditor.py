@@ -46,6 +46,22 @@ def calculate_tax(amount):
     return amount * TAX_RATE
 
 
+def generate_report(total_units, failed_attempts, deliveries=0):
+    """Print the closing summary.
+
+    The lab sheet fixes the signature as generate_report(total_units,
+    failed_attempts) but also asks the report to show the delivery count, so the
+    two extra figures are optional parameters. Called with just two arguments the
+    function still works exactly as specified.
+    """
+    print("===================================")
+    print("AUDIT REPORT")
+    print("Total Deliveries Processed:", deliveries)
+    print("Total Units Processed:", total_units)
+    print("Number of Failed/Rejected Entries:", failed_attempts)
+    print("===================================")
+
+
 def main():
     # 1. Initialize the inventory to zero in the start
     inventory = 0
@@ -80,12 +96,7 @@ def main():
                 break
 
     # 4. Reporting
-    print("===================================")
-    print("AUDIT REPORT")
-    print("Total Deliveries Processed:", deliveries)
-    print("Total Units Processed:", inventory)
-    print("Number of Failed/Rejected Entries:", failed_entries)
-    print("===================================")
+    generate_report(inventory, failed_entries, deliveries)
 
 
 if __name__ == "__main__":
