@@ -47,3 +47,10 @@ while True:
     else:
         print("Rejected: '" + entry + "' is not a whole number.")
         failed_entries = failed_entries + 1
+
+# 8. Reporting
+print("===================================")
+print("AUDIT REPORT")
+print("Total Units Processed:", inventory)
+print("Number of Failed/Rejected Entries:", failed_entries)
+print("===================================")
