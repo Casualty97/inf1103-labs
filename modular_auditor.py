@@ -101,3 +101,17 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# 4. Self-Reflection Task
+# "Why is it better to have a calculate_tax function that simply returns a value,
+#  rather than having it print the tax amount directly inside the function?"
+#
+# Because returning a value keeps the calculation separate from what we do with
+# it. calculate_tax() answers one question - "how much tax is due on this
+# amount?" - and the caller decides whether to print it, add it to a total, or
+# write it to a file. If the function printed instead, the number would only ever
+# exist on screen: main() could not accumulate total_tax, and the moment the
+# manager asks for the tax in a file we would have to rewrite the function and
+# retest everything that already depends on it. A function that returns is also
+# far easier to test, because you can compare its return value against an
+# expected number without capturing console output.
