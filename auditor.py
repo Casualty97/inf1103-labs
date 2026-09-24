@@ -29,6 +29,11 @@ while True:
         inventory = inventory + quantity
         print("Accepted:", quantity, "units. Inventory is now", inventory, "units.")
 
+        # 7. Trigger the overstock alert and stop auditing immediately.
+        if inventory > 500:
+            print("!! OVERSTOCK ALERT: inventory has exceeded 500 units. Stopping the audit.")
+            break
+
     # 5. Enforce business rules: reject negative numbers.
     #    "-5".isdigit() is False, so a negative value would otherwise be reported
     #    as "not a number". Checking for a leading minus sign keeps the two
