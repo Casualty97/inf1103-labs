@@ -38,6 +38,19 @@ def load_inventory():
     return total, history
 
 
+def save_inventory(total, history):
+    """Write the state back to disk so the next run can pick it up.
+
+    In:  the final total and the transaction history list.
+    Out: nothing - the side effect is inventory.txt on disk.
+    """
+    file = open(INVENTORY_FILE, "w")
+    file.write(str(total) + "\n")
+    file.write(",".join([str(amount) for amount in history]) + "\n")
+    file.close()
+    print("Inventory successfully saved to", INVENTORY_FILE)
+
+
 def get_valid_input():
     """In: nothing. Out: an int, the string "quit", or None for a bad entry."""
     entry = input("Enter stock quantity: ")
@@ -111,6 +124,9 @@ def main():
                       OVERSTOCK_LIMIT, "units. Stopping the audit.")
                 break
 
+    # 3. Write-back. This runs on both ways out of the loop - typing quit and
+    #    breaking on the overstock alert - so the state is never lost.
+    save_inventory(inventory, history)
     generate_report(inventory, failed_entries, deliveries)
 
 
