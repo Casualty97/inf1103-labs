@@ -54,3 +54,14 @@ print("AUDIT REPORT")
 print("Total Units Processed:", inventory)
 print("Number of Failed/Rejected Entries:", failed_entries)
 print("===================================")
+
+# 7. Self-Reflection Task
+# "If I want to save the final inventory count to a file so it doesn't vanish
+#  when the container stops, what fundamental limitation of Docker are we hitting?"
+#
+# A container's filesystem is ephemeral. Anything the program writes goes into the
+# container's own writable layer, and that layer is thrown away when the container
+# is removed - which --rm does the moment the script exits. The image itself is
+# read-only, so the data cannot be written back into it either.
+# To make the data outlive the container it has to be written somewhere outside
+# the container - a bind mount or a named volume - which is what we do in Lab 4.
