@@ -32,6 +32,11 @@ def get_valid_input():
         return None
 
 
+def process_delivery(current_total, new_value):
+    """In: the running total and one delivery. Out: the new running total."""
+    return current_total + new_value
+
+
 def main():
     # 1. Initialize the inventory to zero in the start
     inventory = 0
@@ -53,7 +58,7 @@ def main():
             failed_entries = failed_entries + 1
         else:
             # 3. A valid value: update the total and the counters
-            inventory = inventory + result
+            inventory = process_delivery(inventory, result)
             deliveries = deliveries + 1
 
             print("Accepted:", result, "units. Inventory is now", inventory, "units.")
