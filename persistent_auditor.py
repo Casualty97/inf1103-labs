@@ -1,24 +1,38 @@
-# INF1103 Lab 3 - Smart Inventory Auditor (Modular Design)
-# Same behaviour as Lab 2, but the logic now lives in functions.
-#
-# Function signatures mapped out before writing any code:
-#   get_valid_input()                          -> int | "quit" | None
-#   process_delivery(current_total, new_value) -> int   (the new running total)
-#   calculate_tax(amount)                      -> float (10% of that delivery)
-#   generate_report(total_units, failed_attempts) -> None (prints the summary)
+# INF1103 Lab 4 - Smart Inventory Auditor (Data Persistence)
+# Lab 3's modular design, plus file handling so the inventory survives after
+# the program - or the container - stops.
 
 TAX_RATE = 0.10
 OVERSTOCK_LIMIT = 500
+INVENTORY_FILE = "inventory.txt"
+
+
+def load_inventory():
+    """Read the saved total back into memory at startup.
+
+    In:  nothing.
+    Out: the saved running total, or 0 when there is no file yet - which is the
+         normal case on a first run, so it must not be an error.
+    """
+    try:
+        file = open(INVENTORY_FILE, "r")
+    except FileNotFoundError:
+        print("No", INVENTORY_FILE, "found - starting with an empty inventory.")
+        return 0
+
+    lines = file.read().splitlines()
+    file.close()
+
+    total = 0
+    if len(lines) > 0 and lines[0].strip() != "":
+        total = int(lines[0].strip())
+
+    print("Loaded", INVENTORY_FILE + ":", total, "units.")
+    return total
 
 
 def get_valid_input():
-    """Prompt the operator once and validate what came back.
-
-    In:  nothing.
-    Out: the quantity as an int when the entry is usable,
-         the string "quit" when the operator wants to stop,
-         or None when the entry was rejected (the caller counts the failure).
-    """
+    """In: nothing. Out: an int, the string "quit", or None for a bad entry."""
     entry = input("Enter stock quantity: ")
 
     if entry.lower() == "quit":
@@ -39,21 +53,13 @@ def process_delivery(current_total, new_value):
 
 
 def calculate_tax(amount):
-    """In: one delivery amount. Out: the tax due on that delivery (10%).
-
-    Note this only returns the number - it deliberately does not print it.
-    """
+    """In: one delivery amount. Out: the tax due on that delivery (10%)."""
     return amount * TAX_RATE
 
 
 def generate_report(total_units, failed_attempts, deliveries=0):
-    """Print the closing summary.
-
-    The lab sheet fixes the signature as generate_report(total_units,
-    failed_attempts) but also asks the report to show the delivery count, so the
-    two extra figures are optional parameters. Called with just two arguments the
-    function still works exactly as specified.
-    """
+    """Print the closing summary. Extra figures are optional parameters so the
+    two-argument call required by the lab sheet still works."""
     print("===================================")
     print("AUDIT REPORT")
     print("Total Deliveries Processed:", deliveries)
@@ -63,17 +69,18 @@ def generate_report(total_units, failed_attempts, deliveries=0):
 
 
 def main():
-    # 1. Initialize the inventory to zero in the start
-    inventory = 0
+    # 1. Persistence: pick up where the last run left off
+    inventory = load_inventory()
+
     failed_entries = 0
     deliveries = 0
 
     print("===================================")
-    print("Smart Inventory Auditor (Modular)")
+    print("Smart Inventory Auditor (Persistent)")
+    print("Current Inventory:", inventory, "units")
     print("Enter a stock quantity, or type 'quit' to finish.")
     print("===================================")
 
-    # 2. Run in a continuous loop until the user types quit
     while True:
         result = get_valid_input()
 
@@ -82,7 +89,6 @@ def main():
         elif result is None:
             failed_entries = failed_entries + 1
         else:
-            # 3. A valid value: update the total, the tax and the counters
             inventory = process_delivery(inventory, result)
             tax = calculate_tax(result)
             deliveries = deliveries + 1
@@ -95,23 +101,8 @@ def main():
                       OVERSTOCK_LIMIT, "units. Stopping the audit.")
                 break
 
-    # 4. Reporting
     generate_report(inventory, failed_entries, deliveries)
 
 
 if __name__ == "__main__":
     main()
-
-# 4. Self-Reflection Task
-# "Why is it better to have a calculate_tax function that simply returns a value,
-#  rather than having it print the tax amount directly inside the function?"
-#
-# Because returning a value keeps the calculation separate from what we do with
-# it. calculate_tax() answers one question - "how much tax is due on this
-# amount?" - and the caller decides whether to print it, add it to a total, or
-# write it to a file. If the function printed instead, the number would only ever
-# exist on screen: main() could not accumulate total_tax, and the moment the
-# manager asks for the tax in a file we would have to rewrite the function and
-# retest everything that already depends on it. A function that returns is also
-# far easier to test, because you can compare its return value against an
-# expected number without capturing console output.
