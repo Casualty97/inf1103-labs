@@ -24,7 +24,10 @@ while True:
     #    .isdigit() is only True for a run of digits, so it rejects "ten" for us.
     elif entry.isdigit():
         quantity = int(entry)
-        print("Accepted:", quantity, "units.")
+
+        # 6. Manage state: keep a running total of the inventory.
+        inventory = inventory + quantity
+        print("Accepted:", quantity, "units. Inventory is now", inventory, "units.")
 
     # 5. Enforce business rules: reject negative numbers.
     #    "-5".isdigit() is False, so a negative value would otherwise be reported
